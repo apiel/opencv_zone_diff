@@ -8,15 +8,9 @@
 using namespace cv;
 using namespace std;
 
-// g++ videocapture_diff_ip.cpp `pkg-config --libs --cflags opencv` -o cam -lcurl -std=c++11
+// #define IPCAM "http://192.168.0.108/snapshot.cgi?user=admin&pwd=admin"
 
-// "http://192.168.0.108/snapshot.cgi?user=admin&pwd=admin"
-
-//curl writefunction to be passed as a parameter
-// we can't ever expect to get the whole image in one piece,
-// every router / hub is entitled to fragment it into parts
-// (like 1-8k at a time),
-// so insert the part at the end of our stream.
+#ifdef IPCAM
 size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
     vector<uchar> *stream = (vector<uchar>*)userdata;
@@ -25,7 +19,6 @@ size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
     return count;
 }
 
-//function to retrieve the image as cv::Mat data type
 cv::Mat curlImg(const char *img_url, int timeout=10)
 {
     vector<uchar> stream;
@@ -38,6 +31,7 @@ cv::Mat curlImg(const char *img_url, int timeout=10)
     curl_easy_cleanup(curl); // cleanup
     return imdecode(stream, -1); // 'keep-as-is'
 }
+#endif
 
 int main(int, char**)
 {
@@ -49,8 +43,23 @@ int main(int, char**)
 
     int val, x, y;
 
-    const char* url = "http://192.168.0.108/snapshot.cgi?user=admin&pwd=admin";
-    frame = curlImg(url);
+    #ifdef IPCAM
+    frame = curlImg(IPCAM);
+    #else
+    VideoCapture cap;
+    // open the default camera using default API
+    cap.open(0);
+    if (!cap.isOpened()) {
+        cerr << "ERROR! Unable to open camera\n";
+        return -1;
+    }
+    cap.read(frame);
+    #endif   
+    
+    if (frame.empty()) {
+        cerr << "ERROR! blank frame grabbed\n";
+        return -1;
+    }    
 
     int w = 8;
     int width = frame.cols / 8;
@@ -67,7 +76,11 @@ int main(int, char**)
         << "Press any key to terminate" << endl;
     for (;;)
     {
-        frame = curlImg(url);
+        #ifdef IPCAM
+        frame = curlImg(IPCAM);
+        #else
+        cap.read(frame);
+        #endif
         // check if we succeeded
         if (frame.empty()) {
             cerr << "ERROR! blank frame grabbed\n";
@@ -106,7 +119,6 @@ int main(int, char**)
             }
             imshow("Result", resultFrame);
         }
-        // prevFrame = frame;
         frame.copyTo(prevFrame);
         // show live and wait for a key with timeout long enough to show images
 
