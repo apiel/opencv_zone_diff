@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace std;
 
-// #define IPCAM "http://192.168.0.108/snapshot.cgi?user=admin&pwd=admin"
+#define IPCAM "http://192.168.0.108/snapshot.cgi?user=admin&pwd=admin"
 
 #ifdef IPCAM
 size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
@@ -32,6 +32,14 @@ cv::Mat curlImg(const char *img_url, int timeout=10)
     return imdecode(stream, -1); // 'keep-as-is'
 }
 #endif
+
+void detectLight(Mat lightFrame)
+{
+    cvtColor(lightFrame, lightFrame, CV_BGR2GRAY);
+    GaussianBlur(lightFrame, lightFrame, Size(11, 11), 0);
+    threshold(lightFrame, lightFrame, 220, 255, THRESH_BINARY);    
+    imshow("Light", lightFrame);
+}
 
 int main(int, char**)
 {
@@ -86,6 +94,9 @@ int main(int, char**)
             cerr << "ERROR! blank frame grabbed\n";
             break;
         }
+
+        // detectLight(frame);
+
         if (!prevFrame.empty()) {
             // cout << "Frame cmp" << endl;
             absdiff(frame, prevFrame, motionFrame);
@@ -95,7 +106,7 @@ int main(int, char**)
             // reduce noise
             erode(motionFrame, motionFrame, getStructuringElement(MORPH_RECT, Size(4,4)));
 
-            imshow("Live", motionFrame);
+            // imshow("Live", motionFrame);
             motionFrame.copyTo(resultFrame);
             cvtColor(resultFrame, resultFrame, CV_GRAY2BGR);
 
