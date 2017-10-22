@@ -41,6 +41,12 @@ void detectLight(Mat lightFrame)
     imshow("Light", lightFrame);
 }
 
+void detectBrightness(Mat lightFrame)
+{
+    cvtColor(lightFrame, lightFrame, CV_BGR2GRAY);   
+    cout << "Brightness by sum intensity: " << mean(lightFrame)[0] << endl;
+}
+
 int main(int, char**)
 {
     Mat frame;
@@ -95,8 +101,6 @@ int main(int, char**)
             break;
         }
 
-        // detectLight(frame);
-
         if (!prevFrame.empty()) {
             // cout << "Frame cmp" << endl;
             absdiff(frame, prevFrame, motionFrame);
@@ -131,6 +135,10 @@ int main(int, char**)
             imshow("Result", resultFrame);
         }
         frame.copyTo(prevFrame);
+
+        // detectLight(frame);
+        // detectBrightness(frame);
+
         // show live and wait for a key with timeout long enough to show images
 
         if (waitKey(5) >= 0)
