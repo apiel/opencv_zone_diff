@@ -139,9 +139,9 @@ int main(int, char**)
         frame.copyTo(prevFrame);
 
         // detectLight(frame);
-        detectBrightness(frame);
+        // detectBrightness(frame);
 
-        imshow("Frame", frame);
+        // imshow("Frame", frame);
 
         // show live and wait for a key with timeout long enough to show images
 
