@@ -8,6 +8,8 @@
 using namespace cv;
 using namespace std;
 
+#define CAM 0
+// #define CAM 1
 #define IPCAM "http://192.168.0.108/snapshot.cgi?user=admin&pwd=admin"
 
 #ifdef IPCAM
@@ -62,7 +64,7 @@ int main(int, char**)
     #else
     VideoCapture cap;
     // open the default camera using default API
-    cap.open(0);
+    cap.open(CAM);
     if (!cap.isOpened()) {
         cerr << "ERROR! Unable to open camera\n";
         return -1;
@@ -137,7 +139,9 @@ int main(int, char**)
         frame.copyTo(prevFrame);
 
         // detectLight(frame);
-        // detectBrightness(frame);
+        detectBrightness(frame);
+
+        imshow("Frame", frame);
 
         // show live and wait for a key with timeout long enough to show images
 
