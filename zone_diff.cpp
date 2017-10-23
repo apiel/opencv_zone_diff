@@ -45,8 +45,18 @@ void detectLight(Mat lightFrame)
 
 void detectBrightness(Mat lightFrame)
 {
-    cvtColor(lightFrame, lightFrame, CV_BGR2GRAY);   
+    cvtColor(lightFrame, lightFrame, CV_BGR2GRAY);  
+    // doesnt really work if u have white jacket
+    // so it might be better to use histogram 
     cout << "Brightness by sum intensity: " << mean(lightFrame)[0] << endl;
+}
+
+void detectFire(Mat fireFrame)
+{
+    GaussianBlur(fireFrame, fireFrame, Size(21, 21), 0);
+    cvtColor(fireFrame, fireFrame, COLOR_BGR2HSV);
+    inRange(fireFrame, Scalar(0, 0, 200), Scalar(0, 10, 255), fireFrame);
+    imshow("Fire", fireFrame);  
 }
 
 int main(int, char**)
@@ -140,6 +150,7 @@ int main(int, char**)
 
         // detectLight(frame);
         // detectBrightness(frame);
+        // detectFire(frame);
 
         // imshow("Frame", frame);
 
