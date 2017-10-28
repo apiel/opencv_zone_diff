@@ -66,6 +66,7 @@ int main(int, char**)
     Mat motionFrame;
     Mat blockFrame;
     Mat resultFrame;
+    Mat finalFrame;
 
     int val, x, y;
 
@@ -87,10 +88,10 @@ int main(int, char**)
         return -1;
     }    
 
-    int w = 8;
-    int width = frame.cols / 8;
-    int h = 6;
-    int height = frame.rows / 6;
+    int w = 16;
+    int width = frame.cols / w;
+    int h = 12;
+    int height = frame.rows / h;
 
     int marginLeft = width / 2 - 3;
     int marginTop = height / 2 - 3;
@@ -115,6 +116,7 @@ int main(int, char**)
 
         if (!prevFrame.empty()) {
             // cout << "Frame cmp" << endl;
+            frame.copyTo(finalFrame);
             absdiff(frame, prevFrame, motionFrame);
 
             cvtColor(motionFrame, motionFrame, CV_BGR2GRAY);
@@ -137,14 +139,23 @@ int main(int, char**)
                         val = countNonZero(blockFrame);
                         if (val > 2) {
                             cout << "Block val (" << x <<","<< y <<"): " << val << endl;
-                            putText(resultFrame, to_string(val).c_str(), cvPoint(x*width+marginLeft, y*height+marginTop), 
-                                FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(255,0,0), 1, CV_AA);
+                            putText(resultFrame, to_string(val).c_str(), Point(x*width+marginLeft, y*height+marginTop), 
+                                FONT_HERSHEY_COMPLEX_SMALL, 0.8, Scalar(255,0,0), 1, CV_AA);
+
+                            
+                            rectangle( finalFrame,
+                                    Point( x*width, y*height ),
+                                    Point( x*width+width, y*height+height),
+                                    Scalar( 0, 255, 255 ));                            
+                            putText(finalFrame, to_string(val).c_str(), Point(x*width+marginLeft, y*height+marginTop), 
+                                FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(255,0,0), 1, CV_AA);                                    
                         }                        
                         // imshow("Block", blockFrame);
                     }
                 }
             }
             imshow("Result", resultFrame);
+            imshow("Final", finalFrame);
         }
         frame.copyTo(prevFrame);
 
